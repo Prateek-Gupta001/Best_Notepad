@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today's List — Prateek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf6ef;
+    --surface:#ffffff;
+    --surface-2:#f3ecdf;
+    --border:#e8ddc9;
+    --text:#2b2621;
+    --text-dim:#7d7364;
+    --text-faint:#a89b86;
+
+    --accent:#b6552f;
+    --accent-dim:#f7e6da;
+    --gold:#b8901f;
+    --danger:#bf4433;
+
+    --shadow-sm:0 1px 2px rgba(60,48,30,0.05);
+    --shadow-md:0 10px 28px rgba(60,48,30,0.06);
+
+    --radius:14px;
+    --radius-sm:9px;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 0%, #fff9ee 0%, transparent 45%),
+      radial-gradient(circle at 88% 8%, #fdf2e0 0%, transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding:32px 20px 80px;
+  }
+
+  .app{max-width:720px;margin:0 auto;}
+
+  /* ---------- Banner ---------- */
+  .banner{
+    padding:28px 30px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:linear-gradient(155deg, #fffdf8 0%, var(--surface-2) 100%);
+    box-shadow:var(--shadow-md);
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .banner::before{
+    content:"";
+    position:absolute;
+    top:-40%; right:-8%;
+    width:260px; height:260px;
+    background:radial-gradient(circle, rgba(182,85,47,0.10) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin:0 0 10px;
+  }
+  .banner h1{
+    font-size:22px;
+    line-height:1.4;
+    margin:0 0 8px;
+    font-weight:600;
+    max-width:600px;
+    position:relative;
+  }
+  .banner h1 .name{color:var(--accent);}
+  .streak-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow-sm);
+    margin-bottom:16px;
+  }
+  .panel h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    margin:0 0 14px;
+    font-weight:600;
+  }
+
+  /* ---------- Add form ---------- */
+  .add-row{display:flex; gap:10px;}
+  #todoInput{
+    flex:1;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:12px 14px;
+    font-family:var(--font-body);
+    font-size:14.5px;
+    color:var(--text);
+  }
+  #todoInput::placeholder{color:var(--text-faint);}
+  #todoInput:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent;}
+  .char-count{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint);
+    text-align:right; margin-top:6px;
+  }
+  .btn-add{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:13px;
+    border:none;
+    border-radius:9px;
+    padding:0 20px;
+    cursor:pointer;
+    color:#fff8ef;
+    background:var(--accent);
+    box-shadow:0 2px 6px rgba(43,38,33,0.14);
+    transition:filter .15s, box-shadow .15s, transform .08s ease;
+    white-space:nowrap;
+  }
+  .btn-add:hover{filter:brightness(1.08); box-shadow:0 4px 12px rgba(43,38,33,0.2);}
+  .btn-add:active{transform:scale(.95);}
+
+  /* ---------- Pie chart (today's split) ---------- */
+  .pie-panel{text-align:center;}
+  .pie-wrap{display:flex; align-items:center; justify-content:center; gap:26px; flex-wrap:wrap; padding:4px 0 6px;}
+  .pie-chart{
+    width:118px; height:118px; border-radius:50%;
+    background:conic-gradient(var(--accent) 0deg var(--done-deg,0deg), var(--surface-2) var(--done-deg,0deg) 360deg);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-sm);
+    transition:background 0.6s cubic-bezier(.34,1.1,.4,1);
+    flex-shrink:0;
+  }
+  .pie-legend{text-align:left; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim);}
+  .pie-legend-row{display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .pie-legend-row:last-child{margin-bottom:0;}
+  .pie-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .pie-dot.done{background:var(--accent);}
+  .pie-dot.pending{background:var(--surface-2); border:1px solid var(--border);}
+  .pie-legend-num{font-weight:600; color:var(--text);}
+  .pie-empty{color:var(--text-faint); font-size:13px; font-style:italic; padding:8px 0;}
+
+  /* ---------- Todo list ---------- */
+  .todo-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .completed-divider{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text-faint); margin:16px 0 8px; display:flex; align-items:center; gap:8px;
+  }
+  .completed-divider::after{content:""; flex:1; height:1px; background:var(--border);}
+
+  .todo-item{
+    display:flex; align-items:center; gap:12px;
+    padding:11px 12px 11px 14px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    border-radius:9px;
+    animation:slideIn .25s ease;
+  }
+  .todo-item.completed{border-left-color:var(--border);}
+  @keyframes slideIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
+
+  .todo-check{position:relative; display:inline-flex; flex-shrink:0; cursor:pointer;}
+  .todo-check input{position:absolute; opacity:0; width:22px; height:22px; margin:0; cursor:pointer;}
+  .check-visual{
+    width:22px; height:22px; border-radius:50%;
+    border:2px solid var(--border);
+    background:var(--surface);
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s, border-color .2s;
+  }
+  .todo-check input:checked + .check-visual{background:var(--accent); border-color:var(--accent);}
+  .check-path{
+    fill:none; stroke:#fff8ef; stroke-width:3;
+    stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:20; stroke-dashoffset:20;
+    transition:stroke-dashoffset .3s ease .05s;
+  }
+  .todo-check input:checked + .check-visual .check-path{stroke-dashoffset:0;}
+
+  .todo-text{flex:1; font-size:14px; word-break:break-word;}
+  .todo-item.completed .todo-text{color:var(--text-faint); text-decoration:line-through;}
+
+  .todo-del{
+    background:none; border:none; color:var(--text-faint);
+    cursor:pointer; font-size:17px; line-height:1; padding:3px 5px; border-radius:5px; flex-shrink:0;
+  }
+  .todo-del:hover{color:var(--danger); background:rgba(191,68,51,0.09);}
+
+  .empty-state{color:var(--text-faint); font-size:13px; padding:10px 4px; font-style:italic;}
+
+  /* ---------- History ---------- */
+  .history-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .history-head h2{margin:0;}
+  .backup-actions{display:flex; gap:8px;}
+  .btn-ghost{
+    font-family:var(--font-mono); font-size:11.5px;
+    background:transparent; border:1px solid var(--border);
+    color:var(--text-dim); border-radius:7px; padding:6px 10px; cursor:pointer;
+  }
+  .btn-ghost:hover{color:var(--text); border-color:var(--text-faint);}
+
+  .history-list{display:flex; flex-direction:column; gap:8px;}
+  details.day{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:9px;
+  }
+  details.day summary{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:center; gap:14px;
+    padding:12px 14px;
+  }
+  details.day summary::-webkit-details-marker{display:none;}
+  .day-date{font-family:var(--font-mono); font-size:12.5px; width:110px; flex-shrink:0; color:var(--text-dim);}
+  .day-bar{flex:1; height:6px; border-radius:3px; overflow:hidden; background:var(--bg);}
+  .day-bar span{display:block; height:100%; background:var(--accent);}
+  .day-total{font-family:var(--font-mono); font-size:12.5px; width:52px; text-align:right; color:var(--text-dim); flex-shrink:0;}
+  .day-check{width:16px; text-align:center; flex-shrink:0;}
+  .day-entries{padding:0 14px 14px 14px; display:flex; flex-direction:column; gap:6px;}
+  .hist-item{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; background:var(--bg); border:1px solid var(--border); border-radius:8px;
+    font-size:13px;
+  }
+  .hist-mark{width:16px; text-align:center; flex-shrink:0; font-size:12px;}
+  .hist-mark.done{color:var(--accent);}
+  .hist-mark.missed{color:var(--text-faint);}
+  .hist-item.missed .hist-text{color:var(--text-faint); font-style:italic;}
+  .hist-text{flex:1;}
+
+  .empty-history{color:var(--text-faint); font-size:13px; padding:8px 4px; font-style:italic;}
+
+  footer.note{
+    text-align:center; font-size:11.5px; color:var(--text-faint);
+    margin-top:22px; line-height:1.6;
+  }
+  footer.note code{color:var(--text-dim);}
+
+  @media (max-width:480px){
+    .banner{padding:22px 20px;}
+    .add-row{flex-direction:column;}
+    .btn-add{padding:11px 20px;}
+  }
+
+  /* ---------- Toasts ---------- */
+  #toastLayer{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; gap:8px; z-index:80; align-items:center;
+  }
+  .toast{
+    font-family:var(--font-mono); font-size:12.5px;
+    background:var(--surface); border:1px solid var(--border);
+    padding:9px 16px; border-radius:20px; color:var(--text);
+    animation:toastIn .25s ease, toastOut .3s ease 1.8s forwards;
+    box-shadow:0 8px 24px rgba(60,48,30,0.14);
+  }
+  @keyframes toastIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes toastOut{to{opacity:0; transform:translateY(-8px);}}
+
+  /* ---------- Confetti ---------- */
+  #confettiLayer{position:fixed; inset:0; pointer-events:none; z-index:70; overflow:hidden;}
+  .confetti-bit{position:absolute; width:7px; height:7px; top:0; left:0; border-radius:2px; opacity:0.95;}
+
+  /* ---------- All-clear stamp ---------- */
+  #stampLayer{
+    position:fixed; inset:0; pointer-events:none; z-index:75;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stamp{
+    font-family:var(--font-mono); font-weight:700; font-size:26px; letter-spacing:.14em;
+    color:var(--accent); border:4px solid var(--accent); border-radius:12px;
+    padding:14px 26px; background:rgba(255,253,248,0.92);
+    animation:stampIn 2.3s ease forwards;
+  }
+  @keyframes stampIn{
+    0%{opacity:0; transform:rotate(-8deg) scale(1.8);}
+    14%{opacity:1; transform:rotate(-8deg) scale(0.94);}
+    20%{transform:rotate(-8deg) scale(1.04);}
+    26%{transform:rotate(-8deg) scale(1);}
+    82%{opacity:1; transform:rotate(-8deg) scale(1);}
+    100%{opacity:0; transform:rotate(-8deg) scale(1);}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001s !important; transition-duration:0.001s !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="banner">
+    <p class="eyebrow">Today's List</p>
+    <h1 id="bannerText">Hey <span class="name">Prateek</span> — nothing on the list yet. Add today's first task.</h1>
+    <div class="streak-row" id="streakText"></div>
+  </header>
+
+  <section class="panel">
+    <h2>Add a Todo</h2>
+    <div class="add-row">
+      <input type="text" id="todoInput" maxlength="100" placeholder="What do you need to get done today?" autocomplete="off">
+      <button type="button" id="addBtn" class="btn-add">+ Add</button>
+    </div>
+    <div class="char-count" id="charCount">100 characters left</div>
+  </section>
+
+  <section class="panel pie-panel">
+    <h2>Today's Split</h2>
+    <div class="pie-wrap" id="pieWrap">
+      <div class="pie-chart" id="pieChart"></div>
+      <div class="pie-legend">
+        <div class="pie-legend-row"><span class="pie-dot done"></span>Completed — <span class="pie-legend-num" id="pieDoneNum">0</span></div>
+        <div class="pie-legend-row"><span class="pie-dot pending"></span>Pending — <span class="pie-legend-num" id="piePendingNum">0</span></div>
+      </div>
+    </div>
+    <div class="pie-empty" id="pieEmpty" style="display:none">Add a task to see today's split.</div>
+  </section>
+
+  <section class="panel">
+    <h2>Today</h2>
+    <ul class="todo-list" id="pendingList"></ul>
+    <div class="completed-divider" id="completedDivider" style="display:none">Completed <span id="completedCount"></span></div>
+    <ul class="todo-list" id="completedList"></ul>
+  </section>
+
+  <section class="panel history">
+    <div class="history-head">
+      <h2>History</h2>
+      <div class="backup-actions">
+        <button class="btn-ghost" id="exportBtn">Export JSON</button>
+        <button class="btn-ghost" id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none">
+      </div>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </section>
+
+  <footer class="note">
+    Resets to a fresh list at 12:00 AM IST — anything still pending is logged to history as incomplete.<br>
+    Data lives in this browser's <code>localStorage</code> — GitHub Pages can't write files, so nothing is sent anywhere.
+    Reloading is safe; clearing site data isn't. Use <strong>Export JSON</strong> weekly to keep a real <code>.json</code> backup.
+  </footer>
+
+</div>
+
+<div id="toastLayer"></div>
+<div id="confettiLayer"></div>
+<div id="stampLayer"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORE_KEY = "todoTrackerData";
+  var MAX_LEN = 100;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var celebratedThisSession = false;
+
+  // ---------- persistence ----------
+  // Some sandboxed preview environments block localStorage entirely (it throws
+  // on access). Detect that up front so the app still works fully in-session —
+  // add/complete/delete all work — it just won't persist across a reload there.
+  function storageWorks(){
+    try{
+      var k = "__todo_storage_test__";
+      localStorage.setItem(k, "1");
+      localStorage.removeItem(k);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+  var STORAGE_OK = storageWorks();
+
+  function loadData(){
+    if(!STORAGE_OK) return { days: {} };
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      return raw ? JSON.parse(raw) : { days: {} };
+    }catch(e){
+      console.error("Failed to read todo data", e);
+      return { days: {} };
+    }
+  }
+  function saveData(data){
+    if(!STORAGE_OK) return;
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    }catch(e){
+      console.error("Failed to save todo data", e);
+      showToast("⚠ Couldn't save — storage may be full");
+    }
+  }
+
+  var data = loadData();
+
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+
+  // Pinned to India Standard Time (UTC+5:30), independent of device timezone.
+  var IST_OFFSET_MS = 5.5 * 60 * 60000;
+  var ONE_DAY_MS = 86400000;
+
+  function istNowMs(){ return Date.now() + IST_OFFSET_MS; }
+  function keyFromIstMs(ms){
+    var d = new Date(ms);
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth()+1) + "-" + pad(d.getUTCDate());
+  }
+  function todayKey(){ return keyFromIstMs(istNowMs()); }
+
+  function ensureDay(key){
+    if(!data.days[key]){
+      data.days[key] = { todos: [] };
+    }
+    return data.days[key];
+  }
+
+  // ---------- todo actions ----------
+  function addTodo(text){
+    text = text.trim();
+    if(!text) return;
+    var key = todayKey();
+    var day = ensureDay(key);
+    day.todos.push({
+      id: "t" + Date.now() + "-" + Math.floor(Math.random()*10000),
+      text: text.slice(0, MAX_LEN),
+      completed: false,
+      createdAt: new Date().toISOString(),
+      completedAt: null
+    });
+    saveData(data);
+    render();
+    showToast("Added to today's list");
+  }
+
+  function toggleTodo(id, sourceEl){
+    var key = todayKey();
+    var day = ensureDay(key);
+    var todo = day.todos.find(function(t){ return t.id === id; });
+    if(!todo) return;
+
+    todo.completed = !todo.completed;
+    todo.completedAt = todo.completed ? new Date().toISOString() : null;
+    saveData(data);
+
+    var allDoneNow = day.todos.length > 0 && day.todos.every(function(t){ return t.completed; });
+
+    render();
+
+    if(todo.completed){
+      showToast("Done — " + (todo.text.length > 40 ? todo.text.slice(0,40)+"…" : todo.text));
+      if(sourceEl) burstConfetti(sourceEl, "#b6552f", 12);
+      if(allDoneNow && !celebratedThisSession){
+        celebratedThisSession = true;
+        setTimeout(allClearCelebration, 150);
+      }
+    }
+  }
+
+  function deleteTodo(id){
+    var key = todayKey();
+    var day = ensureDay(key);
+    day.todos = day.todos.filter(function(t){ return t.id !== id; });
+    saveData(data);
+    render();
+  }
+
+  // ---------- streak ----------
+  function dayAllDone(day){
+    return day && day.todos.length > 0 && day.todos.every(function(t){ return t.completed; });
+  }
+  function computeStreak(){
+    var streak = 0;
+    var todayD = ensureDay(todayKey());
+    var cursorMs = istNowMs();
+    if(!dayAllDone(todayD)){
+      cursorMs -= ONE_DAY_MS;
+    }
+    while(true){
+      var key = keyFromIstMs(cursorMs);
+      var day = data.days[key];
+      if(dayAllDone(day)){
+        streak++;
+        cursorMs -= ONE_DAY_MS;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // ---------- formatting ----------
+  var WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  function formatDateKey(key){
+    var parts = key.split("-");
+    var year = parseInt(parts[0],10), month = parseInt(parts[1],10), date = parseInt(parts[2],10);
+    var weekday = WEEKDAYS[new Date(Date.UTC(year, month-1, date)).getUTCDay()];
+    return weekday + ", " + date + " " + MONTHS[month-1];
+  }
+
+  // ---------- rendering ----------
+  function renderPie(day){
+    var pie = document.getElementById("pieChart");
+    var wrap = document.getElementById("pieWrap");
+    var empty = document.getElementById("pieEmpty");
+    var total = day.todos.length;
+    var done = day.todos.filter(function(t){ return t.completed; }).length;
+    var pending = total - done;
+
+    if(total === 0){
+      wrap.style.display = "none";
+      empty.style.display = "block";
+      return;
+    }
+    wrap.style.display = "flex";
+    empty.style.display = "none";
+
+    var doneDeg = (done / total) * 360;
+    pie.style.setProperty("--done-deg", doneDeg + "deg");
+    document.getElementById("pieDoneNum").textContent = done;
+    document.getElementById("piePendingNum").textContent = pending;
+  }
+
+  function buildBannerText(day, streak){
+    var total = day.todos.length;
+    var done = day.todos.filter(function(t){ return t.completed; }).length;
+    var pending = total - done;
+    var el = document.getElementById("bannerText");
+    var txt;
+    if(total === 0){
+      txt = 'Hey <span class="name">Prateek</span> — nothing on the list yet. Add today\'s first task.';
+    } else if(done === 0){
+      txt = '<span class="name">Prateek</span>, ' + total + ' task' + (total===1?"":"s") + ' lined up. Pick one and start.';
+    } else if(pending > 0){
+      txt = '<span class="name">Prateek</span>, ' + done + ' of ' + total + ' done — ' + pending + ' to go.';
+    } else {
+      txt = 'All clear, <span class="name">Prateek</span>. ' + total + ' of ' + total + ' done today.';
+    }
+    el.innerHTML = txt;
+
+    var streakEl = document.getElementById("streakText");
+    if(streak > 0){
+      streakEl.innerHTML = '🔥 ' + streak + '-day streak of clearing the full list';
+    } else {
+      streakEl.innerHTML = '🔥 No active streak yet — clearing today\'s list can start one';
+    }
+  }
+
+  function makeTodoItem(todo){
+    var li = document.createElement("li");
+    li.className = "todo-item" + (todo.completed ? " completed" : "");
+    li.innerHTML =
+      '<label class="todo-check">' +
+        '<input type="checkbox"' + (todo.completed ? " checked" : "") + '>' +
+        '<span class="check-visual"><svg viewBox="0 0 24 24"><path class="check-path" d="M5 13l4 4L19 7"></path></svg></span>' +
+      '</label>' +
+      '<span class="todo-text"></span>' +
+      '<button class="todo-del" title="Delete todo" aria-label="Delete todo">×</button>';
+    li.querySelector(".todo-text").textContent = todo.text;
+    var checkbox = li.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener("change", function(){
+      toggleTodo(todo.id, li.querySelector(".check-visual"));
+    });
+    li.querySelector(".todo-del").addEventListener("click", function(){
+      deleteTodo(todo.id);
+    });
+    return li;
+  }
+
+  function renderTodoLists(day){
+    var pendingList = document.getElementById("pendingList");
+    var completedList = document.getElementById("completedList");
+    var divider = document.getElementById("completedDivider");
+    var completedCountEl = document.getElementById("completedCount");
+
+    pendingList.innerHTML = "";
+    completedList.innerHTML = "";
+
+    var pending = day.todos.filter(function(t){ return !t.completed; });
+    var completed = day.todos.filter(function(t){ return t.completed; })
+      .sort(function(a,b){ return new Date(b.completedAt) - new Date(a.completedAt); });
+
+    if(pending.length === 0 && day.todos.length === 0){
+      pendingList.innerHTML = '<li class="empty-state">No tasks yet — add one above to get started.</li>';
+    } else if(pending.length === 0){
+      pendingList.innerHTML = '<li class="empty-state">Nothing pending — every task is done. 🎉</li>';
+    } else {
+      pending.forEach(function(t){ pendingList.appendChild(makeTodoItem(t)); });
+    }
+
+    if(completed.length > 0){
+      divider.style.display = "flex";
+      completedCountEl.textContent = "(" + completed.length + ")";
+      completed.forEach(function(t){ completedList.appendChild(makeTodoItem(t)); });
+    } else {
+      divider.style.display = "none";
+    }
+  }
+
+  function renderHistory(){
+    var container = document.getElementById("historyList");
+    container.innerHTML = "";
+    var keys = Object.keys(data.days).filter(function(k){ return k !== todayKey(); });
+    keys.sort().reverse();
+
+    if(keys.length === 0){
+      container.innerHTML = '<p class="empty-history">No previous days yet — today will show up here tomorrow.</p>';
+      return;
+    }
+
+    keys.forEach(function(key){
+      var day = data.days[key];
+      var total = day.todos.length;
+      var done = day.todos.filter(function(t){ return t.completed; }).length;
+      var pct = total > 0 ? (done/total*100) : 0;
+
+      var details = document.createElement("details");
+      details.className = "day";
+
+      var summary = document.createElement("summary");
+      summary.innerHTML =
+        '<span class="day-date">' + formatDateKey(key) + '</span>' +
+        '<span class="day-bar"><span style="width:' + pct + '%"></span></span>' +
+        '<span class="day-total">' + done + '/' + total + '</span>' +
+        '<span class="day-check">' + (total > 0 && done === total ? "✅" : "") + '</span>';
+      details.appendChild(summary);
+
+      var entriesWrap = document.createElement("div");
+      entriesWrap.className = "day-entries";
+
+      if(total === 0){
+        entriesWrap.innerHTML = '<span class="empty-state">No tasks were added.</span>';
+      } else {
+        day.todos.forEach(function(t){
+          var row = document.createElement("div");
+          row.className = "hist-item" + (t.completed ? "" : " missed");
+          row.innerHTML =
+            '<span class="hist-mark ' + (t.completed ? "done" : "missed") + '">' + (t.completed ? "✓" : "✕") + '</span>' +
+            '<span class="hist-text"></span>';
+          row.querySelector(".hist-text").textContent = t.text + (t.completed ? "" : " — not completed");
+          entriesWrap.appendChild(row);
+        });
+      }
+      details.appendChild(entriesWrap);
+      container.appendChild(details);
+    });
+  }
+
+  function render(){
+    var key = todayKey();
+    var day = ensureDay(key);
+    var streak = computeStreak();
+
+    renderPie(day);
+    buildBannerText(day, streak);
+    renderTodoLists(day);
+    renderHistory();
+
+    var remaining = MAX_LEN - document.getElementById("todoInput").value.length;
+    document.getElementById("charCount").textContent = remaining + " characters left";
+  }
+
+  // ---------- toast ----------
+  function showToast(msg){
+    var layer = document.getElementById("toastLayer");
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    layer.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 2100);
+  }
+
+  // ---------- confetti ----------
+  function burstConfetti(originEl, color, count){
+    if(reduceMotion) return;
+    var rect = originEl.getBoundingClientRect();
+    var originX = rect.left + rect.width/2;
+    var originY = rect.top + rect.height/2;
+    var layer = document.getElementById("confettiLayer");
+
+    for(var i=0;i<count;i++){
+      var bit = document.createElement("div");
+      bit.className = "confetti-bit";
+      bit.style.background = color;
+      bit.style.left = originX + "px";
+      bit.style.top = originY + "px";
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 35 + Math.random() * 80;
+      var dx = Math.cos(angle) * dist;
+      var dy = Math.sin(angle) * dist - 28;
+      var rot = (Math.random() * 480) - 240;
+      var dur = 550 + Math.random() * 350;
+      bit.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+      bit.animate(
+        [
+          { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+          { transform: "translate(" + dx + "px," + dy + "px) rotate(" + rot + "deg)", opacity: 0 }
+        ],
+        { duration: dur, easing: "cubic-bezier(.2,.7,.3,1)" }
+      );
+      layer.appendChild(bit);
+      (function(el, life){ setTimeout(function(){ el.remove(); }, life); })(bit, dur + 50);
+    }
+  }
+
+  function allClearCelebration(){
+    showToast("🎉 Every task done — list cleared!");
+
+    var stampLayer = document.getElementById("stampLayer");
+    stampLayer.innerHTML = "";
+    var stamp = document.createElement("div");
+    stamp.className = "stamp";
+    stamp.textContent = "ALL CLEAR";
+    stampLayer.appendChild(stamp);
+    setTimeout(function(){ stamp.remove(); }, 2350);
+
+    if(reduceMotion) return;
+    var colors = ["#b6552f", "#b8901f", "#5c8a54", "#3f72af"];
+    var layer = document.getElementById("confettiLayer");
+    var w = window.innerWidth;
+    for(var i=0;i<70;i++){
+      (function(){
+        var bit = document.createElement("div");
+        bit.className = "confetti-bit";
+        bit.style.background = colors[Math.floor(Math.random()*colors.length)];
+        var startX = Math.random() * w;
+        bit.style.left = startX + "px";
+        bit.style.top = "-10px";
+        bit.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        var dur = 1600 + Math.random() * 900;
+        var drift = (Math.random() - 0.5) * 200;
+        var rot = (Math.random() * 720) - 360;
+        bit.animate(
+          [
+            { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+            { transform: "translate(" + drift + "px, " + (window.innerHeight + 40) + "px) rotate(" + rot + "deg)", opacity: 0.9 }
+          ],
+          { duration: dur, easing: "cubic-bezier(.4,0,.6,1)" }
+        );
+        layer.appendChild(bit);
+        setTimeout(function(){ bit.remove(); }, dur + 50);
+      })();
+    }
+  }
+
+  // ---------- import / export ----------
+  function exportData(){
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "todo-tracker-" + todayKey() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Exported backup JSON");
+  }
+
+  function importData(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var parsed = JSON.parse(reader.result);
+        if(!parsed || typeof parsed !== "object" || !parsed.days){
+          throw new Error("Invalid file shape");
+        }
+        data = parsed;
+        saveData(data);
+        celebratedThisSession = false;
+        render();
+        showToast("Imported backup successfully");
+      }catch(e){
+        console.error(e);
+        showToast("⚠ That file doesn't look like a valid backup");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- wire up events ----------
+  var addBtn = document.getElementById("addBtn");
+  var todoInput = document.getElementById("todoInput");
+
+  function handleAdd(){
+    addTodo(todoInput.value);
+    todoInput.value = "";
+    todoInput.focus();
+    document.getElementById("charCount").textContent = MAX_LEN + " characters left";
+  }
+
+  addBtn.addEventListener("click", handleAdd);
+  todoInput.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      handleAdd();
+    }
+  });
+
+  todoInput.addEventListener("input", function(){
+    var remaining = MAX_LEN - todoInput.value.length;
+    document.getElementById("charCount").textContent = remaining + " characters left";
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", exportData);
+  document.getElementById("importBtn").addEventListener("click", function(){
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    if(e.target.files && e.target.files[0]){
+      importData(e.target.files[0]);
+      e.target.value = "";
+    }
+  });
+
+  // ---------- live midnight-IST rollover ----------
+  var lastSeenKey = todayKey();
+  setInterval(function(){
+    var currentKey = todayKey();
+    if(currentKey !== lastSeenKey){
+      lastSeenKey = currentKey;
+      celebratedThisSession = false;
+      render();
+      showToast("🌅 New day, IST — fresh list, yesterday moved to history");
+    }
+  }, 20000);
+
+  render();
+  if(!STORAGE_OK){
+    setTimeout(function(){
+      showToast("⚠ Storage blocked in this preview — works fine, won't save on reload");
+    }, 600);
+  }
+})();
+</script>
+
+</body>
+</html>
