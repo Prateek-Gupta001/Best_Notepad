@@ -9,285 +9,308 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#ffffff;
-    --header-from:#fbfdff;
-    --header-to:#eaf1f9;
-    --border:#d3dfec;
-    --text:#232323;
-    --dim:#8a8f97;
-    --accent:#2f6fa8;
-    --accent-soft:#e4eefa;
-    --toolbar-bg:#f5f9fd;
+    --panel-bg:#ffffff;
+    --text:#1f1f1f;
+    --dim:#767676;
+    --border:#dcdfe3;
+    --titlebar-from:#f7f8fa;
+    --titlebar-to:#eceef1;
+    --toolbar-bg:#fafbfc;
+    --hover:#eef1f4;
+    --active:#e2e7ed;
+    --accent:#2f7a82;
   }
   *{box-sizing:border-box;}
   html, body{
     margin:0;
     height:100%;
-    color:var(--text);
-    font-family:Roboto, Arial, sans-serif;
+    overflow:hidden;
+    font-family:'Roboto', Arial, sans-serif;
   }
   body{
-    display:flex; flex-direction:column; min-height:100vh;
     background:
-      radial-gradient(circle at 18% 8%, rgba(255,255,255,0.16) 0%, transparent 42%),
-      radial-gradient(circle at 85% 0%, rgba(255,255,255,0.10) 0%, transparent 38%),
-      linear-gradient(165deg, #163f66 0%, #1f5f95 38%, #3a83b8 72%, #6bb0d8 100%);
-    background-attachment:fixed;
+      linear-gradient(135deg, #1b5e73 0%, #2f7a82 35%, #4a9b8e 65%, #7ab8a0 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 0;
+  }
+
+  /* ---------- floating panel ---------- */
+  .panel{
+    width:82%;
+    max-width:1300px;
+    height:88vh;
+    max-height:920px;
+    background:var(--panel-bg);
+    border:1px solid rgba(0,0,0,0.08);
+    border-radius:10px;
+    box-shadow:0 24px 60px rgba(10,30,35,0.35), 0 2px 8px rgba(10,30,35,0.15);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  @media (max-width:800px){
+    .panel{width:94%; height:92vh;}
   }
 
   /* ---------- title bar ---------- */
   .titlebar{
-    background:linear-gradient(180deg, var(--header-from) 0%, var(--header-to) 100%);
-    border-bottom:2px solid var(--accent);
-    padding:14px 20px;
+    background:linear-gradient(180deg, var(--titlebar-from) 0%, var(--titlebar-to) 100%);
+    border-bottom:1px solid var(--border);
+    padding:12px 20px;
     text-align:center;
+    position:relative;
     flex-shrink:0;
-    box-shadow:0 1px 6px rgba(10,30,55,0.12);
   }
   .titlebar h1{
     margin:0;
-    font-size:19px;
+    font-size:15px;
     font-weight:700;
-    color:#204a72;
+    color:#3a3f45;
     letter-spacing:.01em;
+  }
+  .save-status{
+    position:absolute;
+    right:18px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:11.5px;
+    color:var(--dim);
   }
 
   /* ---------- toolbar ---------- */
   .toolbar{
     background:var(--toolbar-bg);
     border-bottom:1px solid var(--border);
-    padding:8px 16px;
+    padding:7px 14px;
     display:flex;
     align-items:center;
-    gap:14px;
+    gap:6px;
     flex-wrap:wrap;
     flex-shrink:0;
-    box-shadow:0 1px 2px rgba(0,0,0,0.03);
   }
-  .tool-group{display:flex; align-items:center; gap:6px;}
-  .divider{width:1px; height:22px; background:var(--border);}
-
-  select{
-    font-family:Roboto, Arial, sans-serif;
-    font-size:13px;
-    padding:6px 8px;
-    border:1px solid var(--border);
-    border-radius:6px;
-    background:#fff;
-    color:var(--text);
-    cursor:pointer;
+  .tb-group{
+    display:flex;
+    align-items:center;
+    gap:3px;
   }
-  select:hover{border-color:#a9c5e0;}
-  #fontFamilySelect{width:130px;}
-  #fontSizeSelect{width:74px;}
+  .tb-sep{
+    width:1px;
+    align-self:stretch;
+    background:var(--border);
+    margin:0 6px;
+  }
 
-  .icon-btn{
-    width:32px; height:32px;
-    display:flex; align-items:center; justify-content:center;
+  .tb-btn{
+    width:30px;
+    height:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     border:1px solid transparent;
-    border-radius:6px;
     background:transparent;
-    color:#4b4f56;
+    border-radius:6px;
+    color:#454b52;
     cursor:pointer;
+    font-size:13.5px;
+    font-family:'Roboto', Arial, sans-serif;
   }
-  .icon-btn svg{width:16px; height:16px;}
-  .icon-btn:hover{background:var(--accent-soft); border-color:#c7dcf0;}
-  .icon-btn:active{background:#d3e6f7;}
-  .icon-btn.active{background:#d3e6f7; border-color:#a9c9e3; color:var(--accent);}
+  .tb-btn svg{width:16px; height:16px;}
+  .tb-btn:hover{background:var(--hover); border-color:var(--border);}
+  .tb-btn:active{background:var(--active);}
+  .tb-btn.active{background:var(--active); border-color:var(--border); color:var(--accent);}
+  .tb-btn.bold-label{font-weight:700;}
+  .tb-btn.italic-label{font-style:italic;}
+  .tb-btn.underline-label{text-decoration:underline;}
 
-  .text-btn{
-    font-family:Roboto, Arial, sans-serif;
-    font-size:13px;
-    padding:6px 12px;
+  select.tb-select{
+    height:30px;
     border:1px solid var(--border);
     border-radius:6px;
     background:#fff;
     color:var(--text);
+    font-size:12.5px;
+    padding:0 8px;
     cursor:pointer;
+    font-family:'Roboto', Arial, sans-serif;
+  }
+  select.tb-select:hover{background:var(--hover);}
+  #fontFamilySelect{width:118px;}
+  #fontSizeSelect{width:66px;}
+
+  .tb-btn-text{
+    height:30px;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:6px;
+    color:#454b52;
+    cursor:pointer;
+    font-size:12.5px;
+    font-family:'Roboto', Arial, sans-serif;
     white-space:nowrap;
   }
-  .text-btn:hover{background:var(--accent-soft); border-color:#c7dcf0;}
-  .text-btn:active{background:#d3e6f7;}
+  .tb-btn-text:hover{background:var(--hover);}
+  .tb-btn-text svg{width:14px; height:14px;}
 
   .toolbar-spacer{flex:1;}
 
-  /* ---------- page area ---------- */
-  .page-wrap{
+  /* ---------- editor ---------- */
+  .editor-wrap{
     flex:1;
-    display:flex;
-    justify-content:center;
-    padding:22px 20px 0;
     overflow-y:auto;
+    background:#fff;
   }
-  .page-card{
-    width:100%;
-    max-width:850px;
-    background:var(--paper);
-    border-radius:8px 8px 0 0;
-    box-shadow:0 10px 34px rgba(9,28,52,0.28), 0 2px 8px rgba(9,28,52,0.14);
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    min-height:260vh;
-    height:fit-content;
-  }
-  .page-accent{
-    height:5px;
-    flex-shrink:0;
-    background:linear-gradient(90deg, #2f6fa8, #6bb0d8);
-  }
-  .page{
-    flex:1;
-    padding:18px 56px 120px;
+  .editor{
+    min-height:100%;
+    padding:32px 44px;
+    color:var(--text);
+    font-family:'Roboto', Arial, sans-serif;
     font-size:16px;
-    line-height:1.7;
+    line-height:1.65;
     outline:none;
   }
-  .page:empty::before{
-    content:"Start typing…";
-    color:#b7bac0;
+  .editor:empty::before{
+    content:attr(data-placeholder);
+    color:#b7bcc2;
+    pointer-events:none;
   }
 
-  /* ---------- status bar ---------- */
-  .statusbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:7px 20px;
-    font-size:12px;
-    color:#eaf1f9;
-    border-top:1px solid rgba(255,255,255,0.18);
-    background:rgba(10,35,60,0.28);
-    backdrop-filter:blur(6px);
-    flex-shrink:0;
-  }
-  #saveStatus{min-width:70px;}
-
-  @media (max-width:640px){
-    .page{padding:16px 22px 100px;}
-    .toolbar{gap:8px;}
-    #fontFamilySelect{width:105px;}
+  @media print{
+    body{background:#fff; padding:0;}
+    .panel{box-shadow:none; border:none; width:100%; height:auto; max-width:none; max-height:none;}
+    .titlebar, .toolbar{display:none;}
+    .editor-wrap{overflow:visible;}
+    .editor{padding:0;}
   }
 </style>
 </head>
 <body>
 
-<div class="titlebar">
-  <h1>Notepad</h1>
-</div>
+<div class="panel">
 
-<div class="toolbar">
-  <div class="tool-group">
-    <select id="fontFamilySelect" title="Font family">
-      <option value="Roboto, Arial, sans-serif">Roboto</option>
-      <option value="Arial, sans-serif">Arial</option>
-      <option value="Georgia, serif">Georgia</option>
-      <option value="'Times New Roman', serif">Times New Roman</option>
-      <option value="'Courier New', monospace">Courier New</option>
-      <option value="Verdana, sans-serif">Verdana</option>
-    </select>
-    <select id="fontSizeSelect" title="Font size">
-      <option value="12">12</option>
-      <option value="14">14</option>
-      <option value="16" selected>16</option>
-      <option value="18">18</option>
-      <option value="20">20</option>
-      <option value="24">24</option>
-      <option value="28">28</option>
-      <option value="32">32</option>
-      <option value="40">40</option>
-    </select>
+  <div class="titlebar">
+    <h1>Notepad</h1>
+    <span class="save-status" id="saveStatus"></span>
   </div>
 
-  <div class="divider"></div>
+  <div class="toolbar">
+    <div class="tb-group">
+      <button class="tb-btn" id="newBtn" title="New (clear document)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="12" x2="12" y2="18"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+      </button>
+      <button class="tb-btn" id="saveBtn" title="Save now">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+      </button>
+      <button class="tb-btn" id="printBtn" title="Print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      </button>
+    </div>
 
-  <div class="tool-group">
-    <button class="icon-btn" id="boldBtn" title="Bold">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h7a4 4 0 0 1 0 8H6z"></path><path d="M6 12h8a4 4 0 0 1 0 8H6z"></path></svg>
+    <div class="tb-sep"></div>
+
+    <div class="tb-group">
+      <button class="tb-btn" id="undoBtn" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+      </button>
+      <button class="tb-btn" id="redoBtn" title="Redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
+      </button>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <div class="tb-group">
+      <button class="tb-btn bold-label" id="boldBtn" title="Bold">B</button>
+      <button class="tb-btn italic-label" id="italicBtn" title="Italic">I</button>
+      <button class="tb-btn underline-label" id="underlineBtn" title="Underline">U</button>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <div class="tb-group">
+      <select class="tb-select" id="fontFamilySelect" title="Font family">
+        <option value="Roboto">Roboto</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+      </select>
+      <select class="tb-select" id="fontSizeSelect" title="Font size">
+        <option value="12">12</option>
+        <option value="14">14</option>
+        <option value="16" selected>16</option>
+        <option value="18">18</option>
+        <option value="20">20</option>
+        <option value="24">24</option>
+        <option value="28">28</option>
+        <option value="32">32</option>
+        <option value="36">36</option>
+        <option value="48">48</option>
+      </select>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <button class="tb-btn-text" id="downloadBtn" title="Download as .txt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <span>Download .txt</span>
     </button>
-    <button class="icon-btn" id="italicBtn" title="Italic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
-    </button>
-    <button class="icon-btn" id="underlineBtn" title="Underline">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 12 0V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>
+
+    <button class="tb-btn" id="fullscreenBtn" title="Toggle fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
     </button>
   </div>
 
-  <div class="divider"></div>
-
-  <div class="tool-group">
-    <button class="icon-btn" id="undoBtn" title="Undo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M3 13a9 9 0 1 0 3-7"></path></svg>
-    </button>
-    <button class="icon-btn" id="redoBtn" title="Redo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M21 13a9 9 0 1 1-3-7"></path></svg>
-    </button>
+  <div class="editor-wrap">
+    <div class="editor" id="editor" contenteditable="true" data-placeholder="Start typing…" spellcheck="false"></div>
   </div>
 
-  <div class="toolbar-spacer"></div>
-
-  <div class="tool-group">
-    <button class="text-btn" id="clearBtn">New</button>
-    <button class="text-btn" id="downloadBtn">Download .txt</button>
-  </div>
-</div>
-
-<div class="page-wrap">
-  <div class="page-card">
-    <div class="page-accent"></div>
-    <div class="page" id="editor" contenteditable="true" spellcheck="false"></div>
-  </div>
-</div>
-
-<div class="statusbar">
-  <span id="saveStatus"></span>
-  <span id="wordCount">0 words</span>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  var HTML_KEY = "notepad_html_v2";
+  var CONTENT_KEY = "notepad_content_html";
   var editor = document.getElementById("editor");
   var saveStatus = document.getElementById("saveStatus");
-  var wordCount = document.getElementById("wordCount");
+  var fontFamilySelect = document.getElementById("fontFamilySelect");
+  var fontSizeSelect = document.getElementById("fontSizeSelect");
 
   // ---------- load saved content ----------
-  var saved = localStorage.getItem(HTML_KEY);
+  var saved = localStorage.getItem(CONTENT_KEY);
   if(saved) editor.innerHTML = saved;
-  editor.style.fontFamily = "Roboto, Arial, sans-serif";
-
-  // ---------- word count ----------
-  function updateWordCount(){
-    var text = editor.innerText.trim();
-    var words = text.length ? text.split(/\s+/).length : 0;
-    wordCount.textContent = words + (words === 1 ? " word" : " words");
-  }
-  updateWordCount();
 
   // ---------- autosave, debounced ----------
-  // localStorage writes are local-only (no network / no bandwidth cost at
-  // all), but we still debounce so a fast typist isn't triggering a write on
-  // every keystroke. Saves 700ms after you stop typing, with a periodic
-  // safety save every 5s if you keep typing continuously, and an immediate
-  // save whenever the tab is hidden or closed.
+  // localStorage writes are local-only (no network, no bandwidth), but we
+  // still debounce so a fast typist isn't triggering a write on every single
+  // keystroke. Saves 700ms after you stop typing, with a periodic safety
+  // save every 5s if you keep typing continuously, plus an immediate save
+  // whenever the tab is hidden or closed — so nothing is ever lost.
   var debounceTimer = null;
   var periodicTimer = null;
   var dirty = false;
 
   function saveNow(){
-    localStorage.setItem(HTML_KEY, editor.innerHTML);
+    localStorage.setItem(CONTENT_KEY, editor.innerHTML);
     dirty = false;
-    saveStatus.textContent = "Saved";
+    flashStatus("Saved");
+  }
+
+  function flashStatus(msg){
+    saveStatus.textContent = msg;
     clearTimeout(saveStatus._clearTimer);
     saveStatus._clearTimer = setTimeout(function(){ saveStatus.textContent = ""; }, 1200);
   }
 
-  function markDirty(){
+  editor.addEventListener("input", function(){
     dirty = true;
     saveStatus.textContent = "";
-    updateWordCount();
 
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(saveNow, 700);
@@ -295,67 +318,118 @@
     if(!periodicTimer){
       periodicTimer = setInterval(function(){
         if(dirty) saveNow();
-        else{ clearInterval(periodicTimer); periodicTimer = null; }
+        else{
+          clearInterval(periodicTimer);
+          periodicTimer = null;
+        }
       }, 5000);
     }
-  }
+  });
 
-  editor.addEventListener("input", markDirty);
-
-  window.addEventListener("beforeunload", function(){ if(dirty) saveNow(); });
+  window.addEventListener("beforeunload", function(){
+    if(dirty) saveNow();
+  });
   document.addEventListener("visibilitychange", function(){
     if(document.hidden && dirty) saveNow();
   });
 
-  // ---------- formatting ----------
-  function exec(cmd, val){
-    editor.focus();
-    document.execCommand(cmd, false, val || null);
-    markDirty();
-  }
-
-  document.getElementById("boldBtn").addEventListener("click", function(){ exec("bold"); });
-  document.getElementById("italicBtn").addEventListener("click", function(){ exec("italic"); });
-  document.getElementById("underlineBtn").addEventListener("click", function(){ exec("underline"); });
-  document.getElementById("undoBtn").addEventListener("click", function(){ exec("undo"); });
-  document.getElementById("redoBtn").addEventListener("click", function(){ exec("redo"); });
-
-  document.getElementById("fontFamilySelect").addEventListener("change", function(e){
-    exec("fontName", e.target.value);
+  // ---------- toolbar: file actions ----------
+  document.getElementById("newBtn").addEventListener("click", function(){
+    if(editor.innerText.trim().length === 0) return;
+    if(confirm("Clear the whole document? This can't be undone.")){
+      editor.innerHTML = "";
+      localStorage.removeItem(CONTENT_KEY);
+      dirty = false;
+      flashStatus("Cleared");
+      editor.focus();
+    }
   });
 
-  // Font size: execCommand only supports 7 legacy sizes, so we apply size 7
-  // as a marker then rewrite the resulting <font> tags to real pixel sizes.
-  document.getElementById("fontSizeSelect").addEventListener("change", function(e){
-    var px = e.target.value;
+  document.getElementById("saveBtn").addEventListener("click", function(){
+    saveNow();
+  });
+
+  document.getElementById("printBtn").addEventListener("click", function(){
+    window.print();
+  });
+
+  // ---------- toolbar: undo/redo ----------
+  document.getElementById("undoBtn").addEventListener("click", function(){
+    editor.focus();
+    document.execCommand("undo");
+  });
+  document.getElementById("redoBtn").addEventListener("click", function(){
+    editor.focus();
+    document.execCommand("redo");
+  });
+
+  // ---------- toolbar: bold/italic/underline ----------
+  var boldBtn = document.getElementById("boldBtn");
+  var italicBtn = document.getElementById("italicBtn");
+  var underlineBtn = document.getElementById("underlineBtn");
+
+  function runFormat(cmd, btn){
+    editor.focus();
+    document.execCommand(cmd);
+    updateToolbarState();
+  }
+  boldBtn.addEventListener("click", function(){ runFormat("bold"); });
+  italicBtn.addEventListener("click", function(){ runFormat("italic"); });
+  underlineBtn.addEventListener("click", function(){ runFormat("underline"); });
+
+  function updateToolbarState(){
+    try{
+      boldBtn.classList.toggle("active", document.queryCommandState("bold"));
+      italicBtn.classList.toggle("active", document.queryCommandState("italic"));
+      underlineBtn.classList.toggle("active", document.queryCommandState("underline"));
+    }catch(e){ /* ignore in unsupported browsers */ }
+  }
+
+  // ---------- toolbar: font family ----------
+  fontFamilySelect.addEventListener("change", function(){
+    editor.focus();
+    document.execCommand("fontName", false, fontFamilySelect.value);
+  });
+
+  // ---------- toolbar: font size (mixed sizes within one document) ----------
+  function applyFontSize(px){
     editor.focus();
     document.execCommand("fontSize", false, "7");
-    var marks = editor.querySelectorAll('font[size="7"]');
-    marks.forEach(function(el){
+    var marked = editor.querySelectorAll('font[size="7"]');
+    marked.forEach(function(el){
       el.removeAttribute("size");
       el.style.fontSize = px + "px";
     });
-    markDirty();
+  }
+  fontSizeSelect.addEventListener("change", function(){
+    applyFontSize(parseInt(fontSizeSelect.value, 10));
   });
 
-  // keep the size dropdown in sync with the cursor position
-  function syncToolbarState(){
-    document.getElementById("boldBtn").classList.toggle("active", document.queryCommandState("bold"));
-    document.getElementById("italicBtn").classList.toggle("active", document.queryCommandState("italic"));
-    document.getElementById("underlineBtn").classList.toggle("active", document.queryCommandState("underline"));
-  }
-  editor.addEventListener("keyup", syncToolbarState);
-  editor.addEventListener("mouseup", syncToolbarState);
-  editor.addEventListener("focus", syncToolbarState);
+  // reflect current selection's size/family/formatting back into the toolbar
+  document.addEventListener("selectionchange", function(){
+    if(document.activeElement !== editor) return;
+    updateToolbarState();
 
-  // ---------- new / clear ----------
-  document.getElementById("clearBtn").addEventListener("click", function(){
-    if(editor.innerText.trim().length === 0) return;
-    if(confirm("Start a new note? This clears the current text (your last download, if any, is unaffected).")){
-      editor.innerHTML = "";
-      localStorage.removeItem(HTML_KEY);
-      updateWordCount();
-      editor.focus();
+    var sel = window.getSelection();
+    if(!sel.rangeCount) return;
+    var node = sel.anchorNode;
+    if(node && node.nodeType === 3) node = node.parentElement;
+    if(!node) return;
+
+    var computed = window.getComputedStyle(node);
+    var px = parseInt(computed.fontSize, 10);
+    var sizeOptions = Array.prototype.map.call(fontSizeSelect.options, function(o){ return o.value; });
+    if(sizeOptions.indexOf(String(px)) !== -1){
+      fontSizeSelect.value = String(px);
+    }
+
+    var family = computed.fontFamily || "";
+    var famOptions = Array.prototype.map.call(fontFamilySelect.options, function(o){ return o.value; });
+    for(var i=0;i<famOptions.length;i++){
+      if(family.indexOf(famOptions[i]) !== -1){
+        fontFamilySelect.value = famOptions[i];
+        break;
+      }
     }
   });
 
@@ -371,6 +445,15 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  });
+
+  // ---------- fullscreen toggle ----------
+  document.getElementById("fullscreenBtn").addEventListener("click", function(){
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(function(){});
+    } else {
+      document.exitFullscreen();
+    }
   });
 
   editor.focus();
